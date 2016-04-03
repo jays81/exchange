@@ -30,8 +30,55 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     executed1 should be (ExecutionResult(false, order1))
 
     val executed2 = exchangeService.addOrder(order2)
-    //first add should not have been executed
+    //second add should have been executed
     executed2 should be (ExecutionResult(true, order2))
+  }
+
+
+  it should "not execute the sell order as the sell price is greater than the buy price" in {
+    val exchangeService = new ExchangeService
+
+
+    val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
+    val order2 = Order(Direction.buy, "VOD.L", 1000, 101, "User1")
+    val order3 = Order(Direction.sell, "VOD.L", 1000, 102, "User2")
+    val executed1 = exchangeService.addOrder(order1)
+    //first add should not have been executed
+    executed1 should be (ExecutionResult(false, order1))
+
+    val executed2 = exchangeService.addOrder(order2)
+    //second add should not have been executed
+    executed2 should be (ExecutionResult(false, order2))
+
+    val executed3 = exchangeService.addOrder(order3)
+    //third add should not have been executed
+    executed3 should be (ExecutionResult(false, order3))
+  }
+
+  it should "match the highest price if there are multiple matching orders for a new sell order" in {
+    val exchangeService = new ExchangeService
+
+
+    val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
+    val order2 = Order(Direction.buy, "VOD.L", 1000, 101, "User1")
+    val order3 = Order(Direction.sell, "VOD.L", 1000, 102, "User2")
+    val order4 = Order(Direction.buy, "VOD.L", 1000, 103, "User1")
+    val executed1 = exchangeService.addOrder(order1)
+    //first add should not have been executed
+    executed1 should be (ExecutionResult(false, order1))
+
+    val executed2 = exchangeService.addOrder(order2)
+    //second add should not have been executed
+    executed2 should be (ExecutionResult(false, order2))
+
+    val executed3 = exchangeService.addOrder(order3)
+    //third add should not have been executed
+    executed3 should be (ExecutionResult(false, order3))
+
+    val executed4 = exchangeService.addOrder(order4)
+    //4th add should have been executed
+    executed4 should be (ExecutionResult(true, order4))
+
   }
 
 }
