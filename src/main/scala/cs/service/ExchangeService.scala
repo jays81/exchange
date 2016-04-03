@@ -1,5 +1,7 @@
 package cs.service
 
+import cs.Direction
+import cs.Direction.Direction
 import cs.{ExecutionResult, Direction, Order}
 
 import scala.collection.mutable.ArrayBuffer
@@ -10,6 +12,11 @@ import scala.collection.mutable.ArrayBuffer
 class ExchangeService {
   val openOrders = new ArrayBuffer[Order]
   val executedOrders = new ArrayBuffer[Order]
+
+  private def getMatch(direction: Direction): Direction = direction match {
+    case Direction.buy => Direction.sell
+    case Direction.sell => Direction.buy
+  }
 
   /**
     * Add an order, this will first compare the order
@@ -22,15 +29,44 @@ class ExchangeService {
     */
   def addOrder(order: Order): ExecutionResult = {
     openOrders += order
-    val ordersFound = openOrders.find(openOrder => matchOrder(order, openOrder))
-    println(ordersFound)
+    val filteredOrders = openOrders.filter(openOrder => matchOrder(order, openOrder))
+    println("orders found " + filteredOrders)
+    val matchedOrder = getPriceFromMultipleMatches(order, filteredOrders)
 
-    val executionResult = ordersFound match {
-      case Some(openOrder) => ExecutionResult(true,order.direction, order.price)
-      case None => ExecutionResult(false, order.direction, order.price)
+    println("matched order " + matchedOrder)
+
+    val executionResult = matchedOrder match {
+      case Some(openOrder) => {
+        //remove executed orders
+        openOrders-= openOrder
+        openOrders-= order
+        ExecutionResult(executed = true,
+          orderDirection = order.direction,
+          matchDirection = getMatch(order.direction),
+          matchPrice = openOrder.price,
+          executionPrice = order.price)
+      }
+      case None => ExecutionResult(executed = false,
+                                  orderDirection = order.direction,
+                                  executionPrice = order.price)
     }
 
     executionResult
+  }
+
+  //for sell order get the highest price, for buy get the lowest
+  def getPriceFromMultipleMatches(order: Order, filteredOrders: ArrayBuffer[Order]): Option[Order] = {
+    val matchedOrder = order.direction match {
+      case Direction.sell => filteredOrders.nonEmpty match {
+        case true => Some(filteredOrders.reduceLeft(max))
+        case false => None
+      }
+      case Direction.buy => filteredOrders.nonEmpty match {
+        case true => Some(filteredOrders.reduceLeft(min))
+        case false => None
+      }
+    }
+    matchedOrder
   }
 
   private def checkPrice(orderToMatch: Order, openOrder: Order): Boolean = {
@@ -52,5 +88,9 @@ class ExchangeService {
       checkPrice(orderToMatch, openOrder))
 
   }
+
+  private def max(order1: Order, order2: Order): Order = if (order1.price > order2.price) order1 else order2
+
+  private def min(order1: Order, order2: Order): Order = if (order1.price < order2.price) order1 else order2
 
 }
