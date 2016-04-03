@@ -2,6 +2,7 @@ package cs.service
 
 import cs.Direction
 import cs.Direction.Direction
+import cs.dao.ExchangeDAO
 import cs.{ExecutionResult, Direction, Order}
 
 import scala.collection.mutable.ArrayBuffer
@@ -9,9 +10,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Created by jay on 02/04/16.
   */
-class ExchangeService {
-  val openOrders = new ArrayBuffer[Order]
-  val executedOrders = new ArrayBuffer[Order]
+class ExchangeService(exchangeDao:ExchangeDAO) {
 
   private def getMatch(direction: Direction): Direction = direction match {
     case Direction.buy => Direction.sell
@@ -28,8 +27,8 @@ class ExchangeService {
     * @return
     */
   def addOrder(order: Order): ExecutionResult = {
-    openOrders += order
-    val filteredOrders = openOrders.filter(openOrder => matchOrder(order, openOrder))
+    exchangeDao.addNewOrder(order)
+    val filteredOrders = exchangeDao.getOpenOrders.filter(openOrder => matchOrder(order, openOrder))
     println("orders found " + filteredOrders)
     val matchedOrder = getPriceFromMultipleMatches(order, filteredOrders)
 
@@ -38,8 +37,7 @@ class ExchangeService {
     val executionResult = matchedOrder match {
       case Some(openOrder) => {
         //remove executed orders
-        openOrders-= openOrder
-        openOrders-= order
+        exchangeDao.addExecutedOrder(order, openOrder)
         ExecutionResult(executed = true,
           orderDirection = order.direction,
           matchDirection = getMatch(order.direction),
@@ -55,7 +53,7 @@ class ExchangeService {
   }
 
   //for sell order get the highest price, for buy get the lowest
-  def getPriceFromMultipleMatches(order: Order, filteredOrders: ArrayBuffer[Order]): Option[Order] = {
+  def getPriceFromMultipleMatches(order: Order, filteredOrders: Seq[Order]): Option[Order] = {
     val matchedOrder = order.direction match {
       case Direction.sell => filteredOrders.nonEmpty match {
         case true => Some(filteredOrders.reduceLeft(max))

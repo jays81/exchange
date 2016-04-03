@@ -1,6 +1,7 @@
 package cs.service
 
 import cs.Direction._
+import cs.dao.InMemoryExchangeDAO
 import cs.{ExecutionResult, Direction, Order}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -10,7 +11,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class ExchangeServiceSpec extends FlatSpec with Matchers {
 
   "ExchangeService" should "add an order and should not have been executed" in {
-    val exchangeService = new ExchangeService
+    val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
     val order = Order(Direction.sell, "VOD.L", 1000, 100.2, "User1")
@@ -22,7 +23,7 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
   }
 
   it should "add an order and should have been executed" in {
-    val exchangeService = new ExchangeService
+    val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
     val order1 = Order(Direction.sell, "VOD.L", 1000, 100.2, "User1")
@@ -44,7 +45,7 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
 
 
   it should "not execute the sell order as the sell price is greater than the buy price" in {
-    val exchangeService = new ExchangeService
+    val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
     val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
@@ -70,7 +71,7 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
   }
 
   it should "new buy order should match an existing sell order" in {
-    val exchangeService = new ExchangeService
+    val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
     val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
@@ -106,7 +107,7 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
   }
 
   it should "match the highest price if there are multiple matching orders for a new sell order" in {
-    val exchangeService = new ExchangeService
+    val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
     val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
