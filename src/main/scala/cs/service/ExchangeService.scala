@@ -26,8 +26,8 @@ class ExchangeService {
     println(ordersFound)
 
     val executionResult = ordersFound match {
-      case Some(openOrder) => ExecutionResult(true,order)
-      case None => ExecutionResult(false, order)
+      case Some(openOrder) => ExecutionResult(true,order.direction, order.price)
+      case None => ExecutionResult(false, order.direction, order.price)
     }
 
     executionResult
