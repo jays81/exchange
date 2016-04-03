@@ -1,11 +1,8 @@
 package cs.service
 
-import cs.Direction
 import cs.Direction.Direction
 import cs.dao.ExchangeDAO
-import cs.{ExecutionResult, Direction, Order}
-
-import scala.collection.mutable.ArrayBuffer
+import cs.{Direction, ExecutionResult, Order}
 
 /**
   * Created by jay on 02/04/16.
