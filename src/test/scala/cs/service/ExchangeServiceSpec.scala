@@ -1,7 +1,7 @@
 package cs.service
 
 import cs.Direction._
-import cs.{Direction, Order}
+import cs.{ExecutionResult, Direction, Order}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -16,7 +16,7 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     val order = Order(Direction.sell, "VOD.L", 1000, 100.2, "User1")
     val executed = exchangeService.addOrder(order)
 
-    executed should be (false)
+    executed should be (ExecutionResult(false, order))
   }
 
   it should "add an order and should have been executed" in {
@@ -27,11 +27,11 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     val order2 = Order(Direction.buy, "VOD.L", 1000, 100.2, "User2")
     val executed1 = exchangeService.addOrder(order1)
     //first add should not have been executed
-    executed1 should be (false)
+    executed1 should be (ExecutionResult(false, order1))
 
     val executed2 = exchangeService.addOrder(order2)
     //first add should not have been executed
-    executed2 should be (true)
+    executed2 should be (ExecutionResult(true, order2))
   }
 
 }

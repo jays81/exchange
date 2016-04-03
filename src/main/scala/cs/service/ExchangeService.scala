@@ -1,6 +1,6 @@
 package cs.service
 
-import cs.{Direction, Order}
+import cs.{ExecutionResult, Direction, Order}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -20,17 +20,17 @@ class ExchangeService {
     * @param order
     * @return
     */
-  def addOrder(order: Order): Boolean = {
+  def addOrder(order: Order): ExecutionResult = {
     openOrders += order
     val ordersFound = openOrders.find(openOrder => matchOrder(order, openOrder))
     println(ordersFound)
 
-    val executed = ordersFound match {
-      case Some(e) => true
-      case None => false
+    val executionResult = ordersFound match {
+      case Some(openOrder) => ExecutionResult(true,order)
+      case None => ExecutionResult(false, order)
     }
 
-    executed
+    executionResult
   }
 
   private def checkPrice(orderToMatch: Order, openOrder: Order): Boolean = {
