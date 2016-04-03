@@ -9,7 +9,7 @@ import cs.{Direction, ExecutionResult, Order}
   */
 class ExchangeService(exchangeDao:ExchangeDAO) {
 
-  private def getMatch(direction: Direction): Direction = direction match {
+  private def getOppositeDirection(direction: Direction): Direction = direction match {
     case Direction.buy => Direction.sell
     case Direction.sell => Direction.buy
   }
@@ -37,7 +37,7 @@ class ExchangeService(exchangeDao:ExchangeDAO) {
         exchangeDao.addExecutedOrder(order, openOrder)
         ExecutionResult(executed = true,
           orderDirection = order.direction,
-          matchDirection = getMatch(order.direction),
+          matchDirection = getOppositeDirection(order.direction),
           matchPrice = openOrder.price,
           executionPrice = order.price)
       }
