@@ -1,5 +1,7 @@
 package cs.service
 
+import java.math.MathContext
+
 import cs.Direction.Direction
 import cs.dao.ExchangeDAO
 import cs.{Direction, ExecutionResult, OpenInterest, Order}
@@ -8,8 +10,6 @@ import cs.{Direction, ExecutionResult, OpenInterest, Order}
   * Created by jay on 02/04/16.
   */
 class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, orderParser:OrderParser, idGenerator: IdGenerator) {
-
-
 
   /**
     * Add an order, this will first validate and parse the order
@@ -140,5 +140,35 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     filteredOrders.sortBy(_.id).reverse.map(order => OpenInterest(order.quantity, order.price))
   }
 
+  def getAverageExecutionPrice(ric: String):Option[BigDecimal] = {
+    val filteredOrders = exchangeDao.getExecutedOrders.filter(order => (order.ric == ric))
+    println(filteredOrders)
+    val price = filteredOrders.isEmpty match {
+      case false =>
+        val averagePrice = filteredOrders.map(order => order.price).sum / filteredOrders.length
+        Some(averagePrice)
+      case true => None
+    }
+    price
+  }
+
+  //if sell negates the quantity
+  private def getCorrectedQuanity(quantity:Int, order:Order): Int = {
+    val correctedQty = order.direction match {
+      case Direction.buy => order.quantity
+      case Direction.sell => order.quantity * -1
+    }
+    quantity + correctedQty
+  }
+
+
+  def getExecutedQuantity(ric: String, user: String):Option[Int] = {
+    val filteredOrders = exchangeDao.getExecutedOrders.filter(order => (order.ric == ric && order.user == user))
+    val executedQuantity = filteredOrders.isEmpty match {
+      case false => Some(filteredOrders.foldLeft(0)((qty,order) => getCorrectedQuanity(qty, order)))
+      case true => Some(0)
+    }
+    executedQuantity
+  }
 
 }

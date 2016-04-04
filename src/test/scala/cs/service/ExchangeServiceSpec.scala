@@ -342,4 +342,111 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     openInterestSell5 should be (Seq())
   }
 
+  it should "provide average execution price for a given RIC" in new ExchangeServiceFixture {
+    val order1 = "SELL 1000 VOD.L @ 100.2"
+    val order2 = "BUY 1000 VOD.L @ 100.2"
+    val order3 = "BUY 1000 VOD.L @ 99"
+    val order4 = "BUY 1000 VOD.L @ 101"
+    val order5 = "SELL 500 VOD.L @ 102"
+    val order6 = "BUY 500 VOD.L @ 103"
+    val order7 = "SELL 1000 VOD.L @ 98"
+
+
+
+    val executed1 = exchangeService.addOrder(order1, "User1")
+    val averageExcecutionPrice1 = exchangeService.getAverageExecutionPrice("VOD.L")
+    averageExcecutionPrice1 should be (None)
+
+    val executed2 = exchangeService.addOrder(order2, "User2")
+    val averageExcecutionPrice2 = exchangeService.getAverageExecutionPrice("VOD.L")
+    averageExcecutionPrice2 should be (Some(100.2000))
+
+    val executed3 = exchangeService.addOrder(order3, "User1")
+    val averageExcecutionPrice3 = exchangeService.getAverageExecutionPrice("VOD.L")
+    averageExcecutionPrice3 should be (Some(100.2000))
+
+    val executed4 = exchangeService.addOrder(order4, "User1")
+    val averageExcecutionPrice4 = exchangeService.getAverageExecutionPrice("VOD.L")
+    averageExcecutionPrice4 should be (Some(100.2000))
+
+    val executed5 = exchangeService.addOrder(order5, "User2")
+    val averageExcecutionPrice5 = exchangeService.getAverageExecutionPrice("VOD.L")
+    averageExcecutionPrice5 should be (Some(100.2000))
+
+    val executed6 = exchangeService.addOrder(order6, "User1")
+    val averageExcecutionPrice6 = exchangeService.getAverageExecutionPrice("VOD.L")
+    averageExcecutionPrice6 should be (Some(101.35))
+
+    val executed7 = exchangeService.addOrder(order7, "user2")
+
+    val averageExcecutionPrice7 = exchangeService.getAverageExecutionPrice("VOD.L")
+    //averageExcecutionPrice7 should be (Some(99.8800))
+
+  }
+
+
+  it should "provide executed quantity for a given RIC and user" in new ExchangeServiceFixture {
+    val order1 = "SELL 1000 VOD.L @ 100.2"
+    val order2 = "BUY 1000 VOD.L @ 100.2"
+    val order3 = "BUY 1000 VOD.L @ 99"
+    val order4 = "BUY 1000 VOD.L @ 101"
+    val order5 = "SELL 500 VOD.L @ 102"
+    val order6 = "BUY 500 VOD.L @ 103"
+    val order7 = "SELL 1000 VOD.L @ 98"
+
+
+
+    val executed1 = exchangeService.addOrder(order1, "User1")
+    val executedQty1User1 = exchangeService.getExecutedQuantity("VOD.L", "User1")
+    executedQty1User1 should be (Some(0))
+
+    val executedQty1User2 = exchangeService.getExecutedQuantity("VOD.L", "User2")
+    executedQty1User2 should be (Some(0))
+
+    val executed2 = exchangeService.addOrder(order2, "User2")
+    val executedQty2User1 = exchangeService.getExecutedQuantity("VOD.L", "User1")
+    executedQty2User1 should be (Some(-1000))
+
+    val executedQty2User2 = exchangeService.getExecutedQuantity("VOD.L", "User2")
+    executedQty2User2 should be (Some(1000))
+
+
+    val executed3 = exchangeService.addOrder(order3, "User1")
+    val executedQty3User1 = exchangeService.getExecutedQuantity("VOD.L", "User1")
+    executedQty3User1 should be (Some(-1000))
+
+    val executedQty3User2 = exchangeService.getExecutedQuantity("VOD.L", "User2")
+    executedQty3User2 should be (Some(1000))
+
+    val executed4 = exchangeService.addOrder(order4, "User1")
+    val executedQty4User1 = exchangeService.getExecutedQuantity("VOD.L", "User1")
+    executedQty4User1 should be (Some(-1000))
+
+    val executedQty4User2 = exchangeService.getExecutedQuantity("VOD.L", "User2")
+    executedQty4User2 should be (Some(1000))
+
+    val executed5 = exchangeService.addOrder(order5, "User2")
+    val executedQty5User1 = exchangeService.getExecutedQuantity("VOD.L", "User1")
+    executedQty5User1 should be (Some(-1000))
+
+    val executedQty5User2 = exchangeService.getExecutedQuantity("VOD.L", "User2")
+    executedQty5User2 should be (Some(1000))
+
+    val executed6 = exchangeService.addOrder(order6, "User1")
+    val executedQty6User1 = exchangeService.getExecutedQuantity("VOD.L", "User1")
+    executedQty6User1 should be (Some(-500))
+
+    val executedQty6User2 = exchangeService.getExecutedQuantity("VOD.L", "User2")
+    executedQty6User2 should be (Some(500))
+
+    val executed7 = exchangeService.addOrder(order7, "User2")
+    val executedQty7User1 = exchangeService.getExecutedQuantity("VOD.L", "User1")
+    executedQty7User1 should be (Some(500))
+
+    val executedQty7User2 = exchangeService.getExecutedQuantity("VOD.L", "User2")
+    executedQty7User2 should be (Some(-500))
+
+
+  }
+
 }

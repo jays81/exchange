@@ -35,4 +35,10 @@ class InMemoryExchangeDAO extends ExchangeDAO {
       openOrders.toSeq
     }
   }
+
+  override def getExecutedOrders(): Seq[Order] = {
+    lock.synchronized{
+      executedOrders.toSeq
+    }
+  }
 }

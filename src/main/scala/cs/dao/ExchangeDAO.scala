@@ -12,4 +12,6 @@ trait ExchangeDAO {
   def addExecutedOrder(order:Order, matchedOrder:Order)
 
   def getOpenOrders():Seq[Order]
+
+  def getExecutedOrders():Seq[Order]
 }

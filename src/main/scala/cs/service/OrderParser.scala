@@ -1,6 +1,8 @@
 package cs.service
 
 
+import java.math.MathContext
+
 import cs.{Direction, Order}
 
 
@@ -27,7 +29,7 @@ class OrderParser {
       Some(Order(id, Direction.withName(mappedValues(OrderParserConstants.DIRECTION).toLowerCase),
         mappedValues(OrderParserConstants.RIC),
         mappedValues(OrderParserConstants.UNITS).toInt,
-        BigDecimal(mappedValues(OrderParserConstants.PRICE)),
+        BigDecimal(mappedValues(OrderParserConstants.PRICE), new MathContext(4)),
         user))
     } catch{
       case ex: Exception => {
