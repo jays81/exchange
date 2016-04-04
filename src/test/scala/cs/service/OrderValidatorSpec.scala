@@ -13,7 +13,7 @@ class OrderValidatorSpec extends FlatSpec with Matchers {
     val orderToValidate = "SELL 1000 VOD.L @ 100.2"
     val orderValidator = new OrderValidator
 
-    val result = orderValidator.validateOrder(orderToValidate)
+    val result = orderValidator.validateOrder(Some(orderToValidate))
     result should be (true)
   }
 
@@ -21,7 +21,7 @@ class OrderValidatorSpec extends FlatSpec with Matchers {
     val orderToValidate = "BUY 1000 VOD.L @ 99"
     val orderValidator = new OrderValidator
 
-    val result = orderValidator.validateOrder(orderToValidate)
+    val result = orderValidator.validateOrder(Some(orderToValidate))
     result should be (true)
   }
 
@@ -29,7 +29,7 @@ class OrderValidatorSpec extends FlatSpec with Matchers {
     val orderToValidate = "hello 1000 VOPD.L @ 100.2"
     val orderValidator = new OrderValidator
 
-    val result = orderValidator.validateOrder(orderToValidate)
+    val result = orderValidator.validateOrder(Some(orderToValidate))
     result should be (false)
   }
 
