@@ -2,7 +2,7 @@ package cs.service
 
 import cs.Direction._
 import cs.dao.InMemoryExchangeDAO
-import cs.{ExecutionResult, Direction, Order}
+import cs.{Direction, ExecutionResult, OpenInterest, Order}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -255,6 +255,64 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
       matchPrice = 97,
       executionPrice = 103)))
 
+  }
+
+  it should "provide open interest for a given RIC and direction" in new ExchangeServiceFixture {
+    val order1 = "BUY 1000 VOD.L @ 99"
+    val order2 = "BUY 1000 VOD.L @ 101"
+    val order3 = "SELL 1000 VOD.L @ 102"
+    val order4 = "BUY 1000 VOD.L @ 103"
+    val order5 = "SELL 1000 VOD.L @ 98"
+
+    val executed1 = exchangeService.addOrder(order1, "User1")
+    //first add should not have been executed
+    executed1 should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
+      orderDirection = Direction.buy,
+      executionPrice = 99)))
+
+    //check open interest for buy and sell after 1st add
+    val openInterest1 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
+    openInterest1 should be (Seq(OpenInterest(1000, 99)))
+
+    val executed2 = exchangeService.addOrder(order2, "User1")
+    //second add should not have been executed
+    executed2 should be (Some(ExecutionResult(orderId = 2,
+      executed = false,
+      orderDirection = Direction.buy,
+      executionPrice = 101)))
+
+    //check open interest for buy and sell after 2nd add
+    val openInterest2 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
+    openInterest2 should be (Seq(OpenInterest(1000, 101),
+      OpenInterest(1000, 99)))
+
+    val executed3 = exchangeService.addOrder(order3, "User2")
+    //third add should not have been executed
+    executed3 should be (Some(ExecutionResult(orderId = 3,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 102)))
+
+    val executed4 = exchangeService.addOrder(order4, "User1")
+    //4th add should have been executed
+    executed4 should be (Some(ExecutionResult(orderId = 4,
+      matchedOrderId = 3,
+      executed = true,
+      orderDirection = Direction.buy,
+      matchDirection = Direction.sell,
+      matchPrice = 102,
+      executionPrice = 103)))
+
+    val executed5 = exchangeService.addOrder(order5, "user2")
+    //5th add should have been executed
+    executed5 should be (Some(ExecutionResult(orderId = 5,
+      matchedOrderId = 2,
+      executed = true,
+      orderDirection = Direction.sell,
+      matchDirection = Direction.buy,
+      matchPrice = 101,
+      executionPrice = 98)))
   }
 
 }

@@ -2,12 +2,14 @@ package cs.service
 
 import cs.Direction.Direction
 import cs.dao.ExchangeDAO
-import cs.{Direction, ExecutionResult, Order}
+import cs.{Direction, ExecutionResult, OpenInterest, Order}
 
 /**
   * Created by jay on 02/04/16.
   */
 class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, orderParser:OrderParser, idGenerator: IdGenerator) {
+
+
 
   /**
     * Add an order, this will first validate and parse the order
@@ -98,8 +100,7 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     val bestOrderPrice = filteredOrders.reduceLeft(minOrMaxFunction).price
     //now get the earliest best price
     val bestOrders = filteredOrders.filter(filteredOrder => filteredOrder.price == bestOrderPrice)
-    val earliestBestOrder = bestOrders.reduceLeft(earliestOrder)
-    earliestBestOrder
+    bestOrders.reduceLeft(earliestOrder)
   }
 
   private def checkPrice(orderToMatch: Order, openOrder: Order): Boolean = {
@@ -131,6 +132,12 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
   private def getOppositeDirection(direction: Direction): Direction = direction match {
     case Direction.buy => Direction.sell
     case Direction.sell => Direction.buy
+  }
+
+  def getOpenInterest(ric: String, direction: Direction):Seq[OpenInterest] = {
+    //get open orders ,in descending order
+    val filteredOrders = exchangeDao.getOpenOrders.filter(order => (order.ric == ric) && (order.direction == direction))
+    filteredOrders.sortBy(_.id).reverse.map(order => OpenInterest(order.quantity, order.price))
   }
 
 
