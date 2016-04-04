@@ -15,21 +15,16 @@ class OrderParser {
 
   private val orderFields = Seq(OrderParserConstants.DIRECTION, OrderParserConstants.UNITS, OrderParserConstants.RIC, OrderParserConstants.PRICE)
 
-  def parseOrder(orderToParse: Option[String], user:String): Option[Order] = {
-    orderToParse.flatMap(order => doParse(order, user))
+  def parseOrder(orderToParse: Option[String], user:String, id:Int): Option[Order] = {
+    orderToParse.flatMap(order => doParse(order, user, id))
   }
 
-  private def doParse(orderToParse: String, user: String): Option[Order] = {
+  private def doParse(orderToParse: String, user: String, id:Int): Option[Order] = {
     val splitOrderToParse = orderToParse.split(" ")
-    splitOrderToParse.foreach(s => println(s))
-
-
     val filteredOrderValues = splitOrderToParse.filter(orderField => orderField != "@")
     val mappedValues = orderFields.zip(filteredOrderValues).toMap
-    println(mappedValues)
-
     try {
-      Some(Order(Direction.withName(mappedValues(OrderParserConstants.DIRECTION).toLowerCase),
+      Some(Order(id, Direction.withName(mappedValues(OrderParserConstants.DIRECTION).toLowerCase),
         mappedValues(OrderParserConstants.RIC),
         mappedValues(OrderParserConstants.UNITS).toInt,
         BigDecimal(mappedValues(OrderParserConstants.PRICE)),

@@ -14,7 +14,7 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
-    val order = Order(Direction.sell, "VOD.L", 1000, 100.2, "User1")
+    val order = Order(1, Direction.sell, "VOD.L", 1000, 100.2, "User1")
     val executed = exchangeService.addOrder(order)
 
     executed should be (ExecutionResult(executed = false,
@@ -26,8 +26,8 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
-    val order1 = Order(Direction.sell, "VOD.L", 1000, 100.2, "User1")
-    val order2 = Order(Direction.buy, "VOD.L", 1000, 100.2, "User2")
+    val order1 = Order(1,Direction.sell, "VOD.L", 1000, 100.2, "User1")
+    val order2 = Order(2, Direction.buy, "VOD.L", 1000, 100.2, "User2")
     val executed1 = exchangeService.addOrder(order1)
     //first add should not have been executed
     executed1 should be (ExecutionResult(executed = false,
@@ -48,9 +48,9 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
-    val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
-    val order2 = Order(Direction.buy, "VOD.L", 1000, 101, "User1")
-    val order3 = Order(Direction.sell, "VOD.L", 1000, 102, "User2")
+    val order1 = Order(1, Direction.buy, "VOD.L", 1000, 99, "User1")
+    val order2 = Order(2, Direction.buy, "VOD.L", 1000, 101, "User1")
+    val order3 = Order(3, Direction.sell, "VOD.L", 1000, 102, "User2")
     val executed1 = exchangeService.addOrder(order1)
     //first add should not have been executed
     executed1 should be (ExecutionResult(executed = false,
@@ -74,10 +74,10 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
-    val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
-    val order2 = Order(Direction.buy, "VOD.L", 1000, 101, "User1")
-    val order3 = Order(Direction.sell, "VOD.L", 1000, 102, "User2")
-    val order4 = Order(Direction.buy, "VOD.L", 1000, 103, "User1")
+    val order1 = Order(1, Direction.buy, "VOD.L", 1000, 99, "User1")
+    val order2 = Order(2, Direction.buy, "VOD.L", 1000, 101, "User1")
+    val order3 = Order(3, Direction.sell, "VOD.L", 1000, 102, "User2")
+    val order4 = Order(4, Direction.buy, "VOD.L", 1000, 103, "User1")
     val executed1 = exchangeService.addOrder(order1)
     //first add should not have been executed
     executed1 should be (ExecutionResult(executed = false,
@@ -110,11 +110,11 @@ class ExchangeServiceSpec extends FlatSpec with Matchers {
     val exchangeService = new ExchangeService(new InMemoryExchangeDAO)
 
 
-    val order1 = Order(Direction.buy, "VOD.L", 1000, 99, "User1")
-    val order2 = Order(Direction.buy, "VOD.L", 1000, 101, "User1")
-    val order3 = Order(Direction.sell, "VOD.L", 1000, 102, "User2")
-    val order4 = Order(Direction.buy, "VOD.L", 1000, 103, "User1")
-    val order5 = Order(Direction.sell, "VOD.L", 1000, 98, "User2")
+    val order1 = Order(1, Direction.buy, "VOD.L", 1000, 99, "User1")
+    val order2 = Order(2, Direction.buy, "VOD.L", 1000, 101, "User1")
+    val order3 = Order(3, Direction.sell, "VOD.L", 1000, 102, "User2")
+    val order4 = Order(4, Direction.buy, "VOD.L", 1000, 103, "User1")
+    val order5 = Order(5, Direction.sell, "VOD.L", 1000, 98, "User2")
     val executed1 = exchangeService.addOrder(order1)
     //first add should not have been executed
     executed1 should be (ExecutionResult(executed = false,
