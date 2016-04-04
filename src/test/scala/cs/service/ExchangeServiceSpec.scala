@@ -15,7 +15,8 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val order = "SELL 1000 VOD.L @ 100.2"
     val executed = exchangeService.addOrder(order, "User1")
 
-    executed should be (Some(ExecutionResult(executed = false,
+    executed should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
       orderDirection = Direction.sell,
       executionPrice = 100.2)))
   }
@@ -27,13 +28,16 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val executed1 = exchangeService.addOrder(order1, "User1")
     //first add should not have been executed
-    executed1 should be (Some(ExecutionResult(executed = false,
+    executed1 should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
       orderDirection = Direction.sell,
       executionPrice = 100.2)))
 
     val executed2 = exchangeService.addOrder(order2, "User2")
     //second add should have been executed
-    executed2 should be (Some(ExecutionResult(executed = true,
+    executed2 should be (Some(ExecutionResult(orderId = 2,
+      matchedOrderId = 1,
+      executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
       matchPrice = 100.2,
@@ -49,19 +53,22 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val executed1 = exchangeService.addOrder(order1, "User1")
     //first add should not have been executed
-    executed1 should be (Some(ExecutionResult(executed = false,
+    executed1 should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
       orderDirection =  Direction.buy,
       executionPrice = 99)))
 
     val executed2 = exchangeService.addOrder(order2, "User1")
     //second add should not have been executed
-    executed2 should be (Some(ExecutionResult(executed = false,
+    executed2 should be (Some(ExecutionResult(orderId = 2,
+      executed = false,
       orderDirection = Direction.buy,
       executionPrice = 101)))
 
     val executed3 = exchangeService.addOrder(order3, "User3")
     //third add should not have been executed
-    executed3 should be (Some(ExecutionResult(executed = false,
+    executed3 should be (Some(ExecutionResult(orderId = 3,
+      executed = false,
       orderDirection = Direction.sell,
       executionPrice = 102)))
   }
@@ -75,25 +82,30 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val executed1 = exchangeService.addOrder(order1, "User1")
     //first add should not have been executed
-    executed1 should be (Some(ExecutionResult(executed = false,
+    executed1 should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
       orderDirection = Direction.buy,
       executionPrice = 99)))
 
     val executed2 = exchangeService.addOrder(order2, "User1")
     //second add should not have been executed
-    executed2 should be (Some(ExecutionResult(executed = false,
+    executed2 should be (Some(ExecutionResult(orderId = 2,
+      executed = false,
       orderDirection = Direction.buy,
       executionPrice = 101)))
 
     val executed3 = exchangeService.addOrder(order3, "User2")
     //third add should not have been executed
-    executed3 should be (Some(ExecutionResult(executed = false,
+    executed3 should be (Some(ExecutionResult(orderId = 3,
+      executed = false,
       orderDirection = Direction.sell,
       executionPrice = 102)))
 
     val executed4 = exchangeService.addOrder(order4, "User1")
     //4th add should have been executed
-    executed4 should be (Some(ExecutionResult(executed = true,
+    executed4 should be (Some(ExecutionResult(orderId = 4,
+      matchedOrderId = 3,
+      executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
       matchPrice = 102,
@@ -102,7 +114,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
   }
 
   it should "match the highest price if there are multiple matching orders for a new sell order" in new ExchangeServiceFixture {
-    
+
     val order1 = "BUY 1000 VOD.L @ 99"
     val order2 = "BUY 1000 VOD.L @ 101"
     val order3 = "SELL 1000 VOD.L @ 102"
@@ -111,25 +123,30 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val executed1 = exchangeService.addOrder(order1, "User1")
     //first add should not have been executed
-    executed1 should be (Some(ExecutionResult(executed = false,
+    executed1 should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
       orderDirection = Direction.buy,
       executionPrice = 99)))
 
     val executed2 = exchangeService.addOrder(order2, "User1")
     //second add should not have been executed
-    executed2 should be (Some(ExecutionResult(executed = false,
+    executed2 should be (Some(ExecutionResult(orderId = 2,
+      executed = false,
       orderDirection = Direction.buy,
       executionPrice = 101)))
 
     val executed3 = exchangeService.addOrder(order3, "User2")
     //third add should not have been executed
-    executed3 should be (Some(ExecutionResult(executed = false,
+    executed3 should be (Some(ExecutionResult(orderId = 3,
+      executed = false,
       orderDirection = Direction.sell,
       executionPrice = 102)))
 
     val executed4 = exchangeService.addOrder(order4, "User1")
     //4th add should have been executed
-    executed4 should be (Some(ExecutionResult(executed = true,
+    executed4 should be (Some(ExecutionResult(orderId = 4,
+      matchedOrderId = 3,
+      executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
       matchPrice = 102,
@@ -137,11 +154,106 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val executed5 = exchangeService.addOrder(order5, "user2")
     //5th add should have been executed
-    executed5 should be (Some(ExecutionResult(executed = true,
+    executed5 should be (Some(ExecutionResult(orderId = 5,
+      matchedOrderId = 2,
+      executed = true,
       orderDirection = Direction.sell,
       matchDirection = Direction.buy,
       matchPrice = 101,
       executionPrice = 98)))
+
+  }
+
+
+  it should "match the lowest price if there are multiple matching orders for a new buy order" in new ExchangeServiceFixture {
+
+
+    val order1 = "SELL 1000 VOD.L @ 97"
+    val order2 = "SELL 1000 VOD.L @ 102"
+    val order3 = "SELL 1000 VOD.L @ 101"
+    val order4 = "BUY 1000 VOD.L @ 103"
+
+    val executed1 = exchangeService.addOrder(order1, "User1")
+    //first add should not have been executed
+    executed1 should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 97)))
+
+    val executed2 = exchangeService.addOrder(order2, "User1")
+    //second add should not have been executed
+    executed2 should be (Some(ExecutionResult(orderId = 2,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 102)))
+
+    val executed3 = exchangeService.addOrder(order3, "User2")
+    //third add should not have been executed
+    executed3 should be (Some(ExecutionResult(orderId = 3,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 101)))
+
+    val executed4 = exchangeService.addOrder(order4, "User1")
+    //4th add should have been executed
+    executed4 should be (Some(ExecutionResult(orderId = 4,
+      matchedOrderId = 1,
+      executed = true,
+      orderDirection = Direction.buy,
+      matchDirection = Direction.sell,
+      matchPrice = 97,
+      executionPrice = 103)))
+
+  }
+
+
+
+  it should "match the earlist lowest best price if there are multiple matching orders for a new buy order" in new ExchangeServiceFixture {
+
+
+    val order1 = "SELL 1000 VOD.L @ 97"
+    val order2 = "SELL 1000 VOD.L @ 102"
+    val order3 = "SELL 1000 VOD.L @ 101"
+    val order4 = "SELL 1000 VOD.L @ 97"
+    val order5 = "BUY 1000 VOD.L @ 103"
+
+    val executed1 = exchangeService.addOrder(order1, "User1")
+    //first add should not have been executed
+    executed1 should be (Some(ExecutionResult(orderId = 1,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 97)))
+
+    val executed2 = exchangeService.addOrder(order2, "User1")
+    //second add should not have been executed
+    executed2 should be (Some(ExecutionResult(orderId = 2,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 102)))
+
+    val executed3 = exchangeService.addOrder(order3, "User2")
+    //third add should not have been executed
+    executed3 should be (Some(ExecutionResult(orderId = 3,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 101)))
+
+    val executed4 = exchangeService.addOrder(order4, "User2")
+    //third add should not have been executed
+    executed4 should be (Some(ExecutionResult(orderId = 4,
+      executed = false,
+      orderDirection = Direction.sell,
+      executionPrice = 97)))
+
+    val executed5 = exchangeService.addOrder(order5, "User1")
+    //4th add should have been executed
+    executed5 should be (Some(ExecutionResult(orderId = 5,
+      matchedOrderId = 1,
+      executed = true,
+      orderDirection = Direction.buy,
+      matchDirection = Direction.sell,
+      matchPrice = 97,
+      executionPrice = 103)))
 
   }
 

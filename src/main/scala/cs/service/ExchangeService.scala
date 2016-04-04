@@ -41,23 +41,29 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     */
   private def addOrder(order: Order): ExecutionResult = {
     exchangeDao.addNewOrder(order)
-    val filteredOrders = exchangeDao.getOpenOrders.filter(openOrder => matchOrder(order, openOrder))
-    println("orders found " + filteredOrders)
-    val matchedOrder = getPriceFromMultipleMatches(order, filteredOrders)
+    val matchingOrders = exchangeDao.getOpenOrders.filter(openOrder => matchOrder(order, openOrder))
+    println("orders found " + matchingOrders)
+    val matchedOrder = getPriceFromMultipleMatches(order, matchingOrders)
 
     println("matched order " + matchedOrder)
+
+    //now check if there are earlier matching orders at the best price, if there are use that one
+    //val bestMatchedOrder = matchedOrder.map(order => getBestMatchedOrder(order, filteredOrders))
 
     val executionResult = matchedOrder match {
       case Some(openOrder) => {
         //remove executed orders
         exchangeDao.addExecutedOrder(order, openOrder)
-        ExecutionResult(executed = true,
+        ExecutionResult(orderId = order.id,
+          matchedOrderId = openOrder.id,
+          executed = true,
           orderDirection = order.direction,
           matchDirection = getOppositeDirection(order.direction),
           matchPrice = openOrder.price,
           executionPrice = order.price)
       }
-      case None => ExecutionResult(executed = false,
+      case None => ExecutionResult(orderId = order.id,
+                                  executed = false,
                                   orderDirection = order.direction,
                                   executionPrice = order.price)
     }
@@ -69,15 +75,31 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
   private def getPriceFromMultipleMatches(order: Order, filteredOrders: Seq[Order]): Option[Order] = {
     val matchedOrder = order.direction match {
       case Direction.sell => filteredOrders.nonEmpty match {
-        case true => Some(filteredOrders.reduceLeft(max))
+        case true => {
+          val earliestBestOrder = getEarliestBestPrice(filteredOrders, max)
+          Some(earliestBestOrder)
+        }
         case false => None
       }
       case Direction.buy => filteredOrders.nonEmpty match {
-        case true => Some(filteredOrders.reduceLeft(min))
+        case true => {
+          val earliestBestOrder = getEarliestBestPrice(filteredOrders, min)
+          Some(earliestBestOrder)
+        }
         case false => None
       }
     }
     matchedOrder
+  }
+
+  //if there are multiple best price matches get the earliest one
+  private def getEarliestBestPrice(filteredOrders: Seq[Order], minOrMaxFunction: (Order, Order) => Order): Order = {
+    //first get best price
+    val bestOrderPrice = filteredOrders.reduceLeft(minOrMaxFunction).price
+    //now get the earliest best price
+    val bestOrders = filteredOrders.filter(filteredOrder => filteredOrder.price == bestOrderPrice)
+    val earliestBestOrder = bestOrders.reduceLeft(earliestOrder)
+    earliestBestOrder
   }
 
   private def checkPrice(orderToMatch: Order, openOrder: Order): Boolean = {
@@ -104,9 +126,12 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
 
   private def min(order1: Order, order2: Order): Order = if (order1.price < order2.price) order1 else order2
 
+  private def earliestOrder(order1: Order, order2: Order): Order = if (order1.id < order2.id) order1 else order2
+
   private def getOppositeDirection(direction: Direction): Direction = direction match {
     case Direction.buy => Direction.sell
     case Direction.sell => Direction.buy
   }
+
 
 }
