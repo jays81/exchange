@@ -49,7 +49,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val order1 = "BUY 1000 VOD.L @ 99"
     val order2 = "BUY 1000 VOD.L @ 101"
-    val order3 = "SELL 1000 VOD.L @ 102"
+    val order3 = "SELL 500 VOD.L @ 102"
 
     val executed1 = exchangeService.addOrder(order1, "User1")
     //first add should not have been executed
@@ -77,8 +77,8 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val order1 = "BUY 1000 VOD.L @ 99"
     val order2 = "BUY 1000 VOD.L @ 101"
-    val order3 = "SELL 1000 VOD.L @ 102"
-    val order4 = "BUY 1000 VOD.L @ 103"
+    val order3 = "SELL 500 VOD.L @ 102"
+    val order4 = "BUY 500 VOD.L @ 103"
 
     val executed1 = exchangeService.addOrder(order1, "User1")
     //first add should not have been executed
@@ -117,8 +117,8 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val order1 = "BUY 1000 VOD.L @ 99"
     val order2 = "BUY 1000 VOD.L @ 101"
-    val order3 = "SELL 1000 VOD.L @ 102"
-    val order4 = "BUY 1000 VOD.L @ 103"
+    val order3 = "SELL 500 VOD.L @ 102"
+    val order4 = "BUY 500 VOD.L @ 103"
     val order5 = "SELL 1000 VOD.L @ 98"
 
     val executed1 = exchangeService.addOrder(order1, "User1")
