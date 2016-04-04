@@ -9,9 +9,9 @@ import scala.collection.mutable.ArrayBuffer
  */
 class InMemoryExchangeDAO extends ExchangeDAO {
 
-  val openOrders = new ArrayBuffer[Order]
-  val executedOrders = new ArrayBuffer[Order]
-  private[this] val lock = new Object()
+  private val openOrders = new ArrayBuffer[Order]
+  private val executedOrders = new ArrayBuffer[Order]
+  private val lock = new Object()
 
   override def addNewOrder(order: Order): Unit = {
     lock.synchronized {
