@@ -260,8 +260,8 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
   it should "provide open interest for a given RIC and direction" in new ExchangeServiceFixture {
     val order1 = "BUY 1000 VOD.L @ 99"
     val order2 = "BUY 1000 VOD.L @ 101"
-    val order3 = "SELL 1000 VOD.L @ 102"
-    val order4 = "BUY 1000 VOD.L @ 103"
+    val order3 = "SELL 500 VOD.L @ 102"
+    val order4 = "BUY 500 VOD.L @ 103"
     val order5 = "SELL 1000 VOD.L @ 98"
 
     val executed1 = exchangeService.addOrder(order1, "User1")
@@ -272,8 +272,10 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
       executionPrice = 99)))
 
     //check open interest for buy and sell after 1st add
-    val openInterest1 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
-    openInterest1 should be (Seq(OpenInterest(1000, 99)))
+    val openInterestBuy1 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
+    openInterestBuy1 should be (Seq(OpenInterest(1000, 99)))
+    val openInterestSell1 = exchangeService.getOpenInterest("VOD.L", Direction.sell)
+    openInterestSell1 should be (Seq())
 
     val executed2 = exchangeService.addOrder(order2, "User1")
     //second add should not have been executed
@@ -286,6 +288,9 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val openInterest2 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
     openInterest2 should be (Seq(OpenInterest(1000, 101),
       OpenInterest(1000, 99)))
+    val openInterestSell2 = exchangeService.getOpenInterest("VOD.L", Direction.sell)
+    openInterestSell2 should be (Seq())
+
 
     val executed3 = exchangeService.addOrder(order3, "User2")
     //third add should not have been executed
@@ -293,6 +298,15 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
       executed = false,
       orderDirection = Direction.sell,
       executionPrice = 102)))
+
+    //check open interest for buy and sell after 3rd add
+    val openInterest3 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
+    openInterest3 should be (Seq(OpenInterest(1000, 101),
+      OpenInterest(1000, 99)))
+    val openInterestSell3 = exchangeService.getOpenInterest("VOD.L", Direction.sell)
+        openInterestSell3 should be (Seq(OpenInterest(500, 102)))
+
+
 
     val executed4 = exchangeService.addOrder(order4, "User1")
     //4th add should have been executed
@@ -304,6 +318,13 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
       matchPrice = 102,
       executionPrice = 103)))
 
+    //check open interest for buy and sell after 4th add
+    val openInterest4 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
+    openInterest3 should be (Seq(OpenInterest(1000, 101),
+      OpenInterest(1000, 99)))
+    val openInterestSell4 = exchangeService.getOpenInterest("VOD.L", Direction.sell)
+    openInterestSell4 should be (Seq())
+
     val executed5 = exchangeService.addOrder(order5, "user2")
     //5th add should have been executed
     executed5 should be (Some(ExecutionResult(orderId = 5,
@@ -313,6 +334,12 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
       matchDirection = Direction.buy,
       matchPrice = 101,
       executionPrice = 98)))
+
+    //check open interest for buy and sell after 5th add
+    val openInterest5 = exchangeService.getOpenInterest("VOD.L", Direction.buy)
+    openInterest5 should be (Seq(OpenInterest(1000, 99)))
+    val openInterestSell5 = exchangeService.getOpenInterest("VOD.L", Direction.sell)
+    openInterestSell5 should be (Seq())
   }
 
 }
