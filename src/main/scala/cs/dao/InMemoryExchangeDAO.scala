@@ -19,13 +19,13 @@ class InMemoryExchangeDAO extends ExchangeDAO {
     }
   }
 
-  override def addExecutedOrder(order: Order, matchedOrder:Order): Unit = {
+  override def updateOrderToExecuted(order: Order, matchedOrder:Order): Unit = {
     lock.synchronized {
       openOrders -= matchedOrder
       openOrders -= order
 
-      //now add executed orders
-      executedOrders += order
+      //now add executed and matched orders
+      executedOrders += order.copy(executed = true)
       executedOrders += matchedOrder
     }
   }

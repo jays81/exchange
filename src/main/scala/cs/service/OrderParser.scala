@@ -28,7 +28,7 @@ class OrderParser {
       Some(Order(id, Direction.withName(mappedValues(OrderParserConstants.DIRECTION).toLowerCase),
         mappedValues(OrderParserConstants.RIC),
         mappedValues(OrderParserConstants.UNITS).toInt,
-        BigDecimal(mappedValues(OrderParserConstants.PRICE), new MathContext(4)),
+        BigDecimal(mappedValues(OrderParserConstants.PRICE)),
         user))
     } catch{
       case ex: Exception => None

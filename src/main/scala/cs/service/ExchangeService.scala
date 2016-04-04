@@ -1,6 +1,8 @@
 package cs.service
 
 
+import java.math.MathContext
+
 import cs.Direction.Direction
 import cs.dao.ExchangeDAO
 import cs.{Direction, ExecutionResult, OpenInterest, Order}
@@ -41,7 +43,7 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
 
     val executionResult = matchedOrder match {
       case Some(openOrder) => {
-        exchangeDao.addExecutedOrder(order, openOrder)
+        exchangeDao.updateOrderToExecuted(order, openOrder)
         ExecutionResult(orderId = order.id,
           matchedOrderId = openOrder.id,
           executed = true,
@@ -120,18 +122,26 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     case Direction.sell => Direction.buy
   }
 
+  /**
+    * open interest is the total quantity of all open orders for a given RIC
+    * and direction at each price point
+    */
   def getOpenInterest(ric: String, direction: Direction):Seq[OpenInterest] = {
     //get open orders ,in descending order
     val filteredOrders = exchangeDao.getOpenOrders.filter(order => (order.ric == ric) && (order.direction == direction))
     filteredOrders.sortBy(_.id).reverse.map(order => OpenInterest(order.quantity, order.price))
   }
 
+  /**
+    * get the average execution price per unit of all executions for a gven RIC
+    * sum(quantity * execution price) / total quantity
+    */
   def getAverageExecutionPrice(ric: String):Option[BigDecimal] = {
-    val filteredOrders = exchangeDao.getExecutedOrders.filter(order => (order.ric == ric))
+    val filteredOrders = exchangeDao.getExecutedOrders.filter(order => (order.ric == ric && order.executed == true))
     val price = filteredOrders.isEmpty match {
       case false =>
-        val averagePrice = filteredOrders.map(order => order.price).sum / filteredOrders.length
-        Some(averagePrice)
+        val averagePrice = filteredOrders.map(order => order.price * order.quantity).sum / filteredOrders.map(order => order.quantity).sum
+        Some(averagePrice.setScale(4, BigDecimal.RoundingMode.HALF_UP))
       case true => None
     }
     price
@@ -147,6 +157,9 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
   }
 
 
+  /**
+    * Sum of quantities of executed orders for a given RIC and user
+    */
   def getExecutedQuantity(ric: String, user: String):Option[Int] = {
     val filteredOrders = exchangeDao.getExecutedOrders.filter(order => (order.ric == ric && order.user == user))
     val executedQuantity = filteredOrders.isEmpty match {

@@ -7,7 +7,7 @@ trait ExchangeDAO {
 
   def addNewOrder(order:Order)
 
-  def addExecutedOrder(order:Order, matchedOrder:Order)
+  def updateOrderToExecuted(order:Order, matchedOrder:Order)
 
   def getOpenOrders:Seq[Order]
 

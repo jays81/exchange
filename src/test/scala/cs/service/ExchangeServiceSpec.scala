@@ -380,12 +380,12 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
 
     val executed6 = exchangeService.addOrder(order6, "User1")
     val averageExcecutionPrice6 = exchangeService.getAverageExecutionPrice("VOD.L")
-    averageExcecutionPrice6 should be (Some(101.35))
+    averageExcecutionPrice6 should be (Some(101.1333))
 
     val executed7 = exchangeService.addOrder(order7, "User2")
 
     val averageExcecutionPrice7 = exchangeService.getAverageExecutionPrice("VOD.L")
-   // averageExcecutionPrice7 should be (Some(99.8800))
+    averageExcecutionPrice7 should be (Some(99.8800))
 
   }
 
