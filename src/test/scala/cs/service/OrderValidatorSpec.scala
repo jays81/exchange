@@ -1,12 +1,7 @@
 package cs.service
 
-import cs.dao.InMemoryExchangeDAO
-import cs.{Direction, ExecutionResult, Order}
 import org.scalatest.{FlatSpec, Matchers}
 
-/**
-  * Created by jay on 02/04/16.
-  */
 class OrderValidatorSpec extends FlatSpec with Matchers {
 
   "OrderValidator" should "validate a valid sell order" in {

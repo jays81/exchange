@@ -3,9 +3,6 @@ package cs.service
 import cs.{Direction, Order}
 import org.scalatest.{FlatSpec, Matchers}
 
-/**
-  * Created by jay on 02/04/16.
-  */
 class OrderParserSpec extends FlatSpec with Matchers {
 
   "OrderParse" should "parse a valid sell order" in {

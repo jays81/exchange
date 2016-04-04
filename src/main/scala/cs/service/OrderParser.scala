@@ -14,7 +14,6 @@ import cs.{Direction, Order}
 class OrderParser {
 
 
-
   private val orderFields = Seq(OrderParserConstants.DIRECTION, OrderParserConstants.UNITS, OrderParserConstants.RIC, OrderParserConstants.PRICE)
 
   def parseOrder(orderToParse: Option[String], user:String, id:Int): Option[Order] = {
@@ -32,9 +31,7 @@ class OrderParser {
         BigDecimal(mappedValues(OrderParserConstants.PRICE), new MathContext(4)),
         user))
     } catch{
-      case ex: Exception => {
-        None
-      }
+      case ex: Exception => None
     }
 
   }

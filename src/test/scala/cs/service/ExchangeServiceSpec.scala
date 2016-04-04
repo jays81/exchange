@@ -1,13 +1,10 @@
 package cs.service
 
-import cs.Direction._
-import cs.dao.InMemoryExchangeDAO
-import cs.{Direction, ExecutionResult, OpenInterest, Order}
+
+import cs.{Direction, ExecutionResult, OpenInterest}
 import org.scalatest.{FlatSpec, Matchers}
 
-/**
-  * Created by jay on 02/04/16.
-  */
+
 class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matchers {
 
   "ExchangeService" should "add an order and should not have been executed" in new ExchangeServiceFixture  {
@@ -19,6 +16,14 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
       executed = false,
       orderDirection = Direction.sell,
       executionPrice = 100.2)))
+  }
+
+  it should "not add an order if the order is not properly formatted" in new ExchangeServiceFixture  {
+
+    val order = "hello 1000VOD.L @ 100.2"
+    val executed = exchangeService.addOrder(order, "User1")
+
+    executed should be (None)
   }
 
   it should "add an order and should have been executed" in new ExchangeServiceFixture {
@@ -377,10 +382,10 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val averageExcecutionPrice6 = exchangeService.getAverageExecutionPrice("VOD.L")
     averageExcecutionPrice6 should be (Some(101.35))
 
-    val executed7 = exchangeService.addOrder(order7, "user2")
+    val executed7 = exchangeService.addOrder(order7, "User2")
 
     val averageExcecutionPrice7 = exchangeService.getAverageExecutionPrice("VOD.L")
-    //averageExcecutionPrice7 should be (Some(99.8800))
+   // averageExcecutionPrice7 should be (Some(99.8800))
 
   }
 

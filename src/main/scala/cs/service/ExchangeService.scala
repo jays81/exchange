@@ -1,13 +1,13 @@
 package cs.service
 
-import java.math.MathContext
 
 import cs.Direction.Direction
 import cs.dao.ExchangeDAO
 import cs.{Direction, ExecutionResult, OpenInterest, Order}
 
 /**
-  * Created by jay on 02/04/16.
+  * Exchange service allows an order to be add, it will be executed if matching orders
+  * are found. Also provides functions to get open interest, average execution price and executed quantity
   */
 class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, orderParser:OrderParser, idGenerator: IdGenerator) {
 
@@ -16,10 +16,6 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     * creating an order, this will go on to check the order against existing orders
     * to check if it can be matched
     * If orders match they are said to be executed
-    *
-    * @param order
-    * @param user
-    * @return
     */
   def addOrder(order:String, user: String):Option[ExecutionResult] = {
     //first validate the order
@@ -37,24 +33,14 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     * Add an order, this will first compare the order
     * against existing orders to check if it can be matched
     * If orders match they are said to be executed
-    *
-    * @param order
-    * @return
     */
   private def addOrder(order: Order): ExecutionResult = {
     exchangeDao.addNewOrder(order)
     val matchingOrders = exchangeDao.getOpenOrders.filter(openOrder => matchOrder(order, openOrder))
-    println("orders found " + matchingOrders)
     val matchedOrder = getPriceFromMultipleMatches(order, matchingOrders)
-
-    println("matched order " + matchedOrder)
-
-    //now check if there are earlier matching orders at the best price, if there are use that one
-    //val bestMatchedOrder = matchedOrder.map(order => getBestMatchedOrder(order, filteredOrders))
 
     val executionResult = matchedOrder match {
       case Some(openOrder) => {
-        //remove executed orders
         exchangeDao.addExecutedOrder(order, openOrder)
         ExecutionResult(orderId = order.id,
           matchedOrderId = openOrder.id,
@@ -111,15 +97,15 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     checkPrice
   }
 
-/**
+  /**
     * Two orders match if they have opposing directions, matching RICs and quantities, and if the
     * sell price is less than or equal to the buy price
     */
   private def matchOrder(orderToMatch:Order, openOrder:Order):Boolean = {
-    (orderToMatch.direction != openOrder.direction &&
+    orderToMatch.direction != openOrder.direction &&
       orderToMatch.ric == openOrder.ric &&
       orderToMatch.quantity == openOrder.quantity &&
-      checkPrice(orderToMatch, openOrder))
+      checkPrice(orderToMatch, openOrder)
 
   }
 
@@ -142,7 +128,6 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
 
   def getAverageExecutionPrice(ric: String):Option[BigDecimal] = {
     val filteredOrders = exchangeDao.getExecutedOrders.filter(order => (order.ric == ric))
-    println(filteredOrders)
     val price = filteredOrders.isEmpty match {
       case false =>
         val averagePrice = filteredOrders.map(order => order.price).sum / filteredOrders.length
@@ -152,7 +137,7 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
     price
   }
 
-  //if sell negates the quantity
+  //if sell negate the quantity
   private def getCorrectedQuanity(quantity:Int, order:Order): Int = {
     val correctedQty = order.direction match {
       case Direction.buy => order.quantity

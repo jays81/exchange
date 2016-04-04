@@ -5,8 +5,8 @@ import cs.Order
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Created by jay on 03/04/16.
- */
+  * Simple in memory implementation of a persistence layer
+  */
 class InMemoryExchangeDAO extends ExchangeDAO {
 
   private val openOrders = new ArrayBuffer[Order]
@@ -32,13 +32,13 @@ class InMemoryExchangeDAO extends ExchangeDAO {
 
   override def getOpenOrders(): Seq[Order] = {
     lock.synchronized{
-      openOrders.toSeq
+      openOrders
     }
   }
 
   override def getExecutedOrders(): Seq[Order] = {
     lock.synchronized{
-      executedOrders.toSeq
+      executedOrders
     }
   }
 }
