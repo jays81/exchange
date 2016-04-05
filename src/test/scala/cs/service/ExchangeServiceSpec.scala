@@ -41,7 +41,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed2 = exchangeService.addOrder(order2, "User2")
     //second add should have been executed
     executed2 should be (Some(ExecutionResult(orderId = 2,
-      matchedOrderId = 1,
+      matchedOrderId = Some(1),
       executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
@@ -109,7 +109,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed4 = exchangeService.addOrder(order4, "User1")
     //4th add should have been executed
     executed4 should be (Some(ExecutionResult(orderId = 4,
-      matchedOrderId = 3,
+      matchedOrderId = Some(3),
       executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
@@ -150,7 +150,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed4 = exchangeService.addOrder(order4, "User1")
     //4th add should have been executed
     executed4 should be (Some(ExecutionResult(orderId = 4,
-      matchedOrderId = 3,
+      matchedOrderId = Some(3),
       executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
@@ -160,7 +160,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed5 = exchangeService.addOrder(order5, "user2")
     //5th add should have been executed
     executed5 should be (Some(ExecutionResult(orderId = 5,
-      matchedOrderId = 2,
+      matchedOrderId = Some(2),
       executed = true,
       orderDirection = Direction.sell,
       matchDirection = Direction.buy,
@@ -202,7 +202,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed4 = exchangeService.addOrder(order4, "User1")
     //4th add should have been executed
     executed4 should be (Some(ExecutionResult(orderId = 4,
-      matchedOrderId = 1,
+      matchedOrderId = Some(1),
       executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
@@ -253,7 +253,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed5 = exchangeService.addOrder(order5, "User1")
     //4th add should have been executed
     executed5 should be (Some(ExecutionResult(orderId = 5,
-      matchedOrderId = 1,
+      matchedOrderId = Some(1),
       executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
@@ -316,7 +316,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed4 = exchangeService.addOrder(order4, "User1")
     //4th add should have been executed
     executed4 should be (Some(ExecutionResult(orderId = 4,
-      matchedOrderId = 3,
+      matchedOrderId = Some(3),
       executed = true,
       orderDirection = Direction.buy,
       matchDirection = Direction.sell,
@@ -333,7 +333,7 @@ class ExchangeServiceSpec extends FlatSpec with ExchangeServiceFixture with Matc
     val executed5 = exchangeService.addOrder(order5, "user2")
     //5th add should have been executed
     executed5 should be (Some(ExecutionResult(orderId = 5,
-      matchedOrderId = 2,
+      matchedOrderId = Some(2),
       executed = true,
       orderDirection = Direction.sell,
       matchDirection = Direction.buy,

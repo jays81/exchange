@@ -45,7 +45,7 @@ class ExchangeService(exchangeDao:ExchangeDAO, orderValidator:OrderValidator, or
       case Some(openOrder) => {
         exchangeDao.updateOrderToExecuted(order, openOrder)
         ExecutionResult(orderId = order.id,
-          matchedOrderId = openOrder.id,
+          matchedOrderId = Some(openOrder.id),
           executed = true,
           orderDirection = order.direction,
           matchDirection = getOppositeDirection(order.direction),
