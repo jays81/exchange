@@ -1,25 +1,27 @@
 package cs.dao
 
+import java.util.concurrent.CopyOnWriteArrayList
+
+import scala.collection.JavaConversions._
+
 import cs.Order
 
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * Simple in memory implementation of a persistence layer
   */
 class InMemoryExchangeDAO extends ExchangeDAO {
 
-  private val openOrders = new ArrayBuffer[Order]
-  private val executedOrders = new ArrayBuffer[Order]
-  private val lock = new Object()
+  private val openOrders = new CopyOnWriteArrayList[Order]
+  private val executedOrders = new CopyOnWriteArrayList[Order]
+  private val lock = new Object
 
   override def addNewOrder(order: Order): Unit = {
-    lock.synchronized {
-      openOrders += order
-    }
+    openOrders += order
   }
 
   override def updateOrderToExecuted(order: Order, matchedOrder:Order): Unit = {
+    //this operation needs to be atomic
     lock.synchronized {
       openOrders -= matchedOrder
       openOrders -= order
@@ -31,14 +33,10 @@ class InMemoryExchangeDAO extends ExchangeDAO {
   }
 
   override def getOpenOrders(): Seq[Order] = {
-    lock.synchronized{
-      openOrders
-    }
+    openOrders
   }
 
   override def getExecutedOrders(): Seq[Order] = {
-    lock.synchronized{
-      executedOrders
-    }
+    executedOrders
   }
 }
